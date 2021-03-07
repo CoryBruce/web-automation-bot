@@ -10,7 +10,7 @@ driver = webdriver.Firefox(executable_path=r"C:\Users\coryb\PycharmProjects\geck
 
 
 
-def get_weather(zipcode):
+def get_weather_data(zipcode):
     driver.get('https://www.weather.gov/')
     search_bar = driver.find_element_by_id("inputstring")
     del_char = 18
@@ -23,18 +23,37 @@ def get_weather(zipcode):
     search_bar.send_keys(Keys.RETURN)
     try:
         current_weather = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, 'current-conditions-body'))
-        )
-
-        print(current_weather.text)
+            EC.presence_of_element_located((By.ID, 'current-conditions-body')))
+        current_weather_text = current_weather.text
     except:
         driver.quit()
-
-
-    #print(driver.page_source)
     forcast = driver.find_element_by_id('detailed-forecast')
+    forcast_text = forcast.text
     driver.quit()
-    print(forcast.text)
+    return current_weather_text, forcast_text
+
+def get_weather():
+    current_weather, forecast = get_weather_data(64507)
+    current_weather_trim = current_weather.split('\n')
+    forecast_trim = forecast.split('\n')
+    weather = []
+    weather.append('Current Weather: ')
+    weather.append(current_weather_trim[8])
+    weather.append(current_weather_trim[0])
+    weather.append(current_weather_trim[1])
+    weather.append(current_weather_trim[3])
+    count = 1
+    while count < 13:
+        weather.append(forecast_trim[count])
+        count += 1
+    return weather
+
+def display_weather():
+    weather = get_weather()
+
+    for item in weather:
+        print(item)
+        #print('\n')
 
 
-get_weather(64507)
+display_weather()
